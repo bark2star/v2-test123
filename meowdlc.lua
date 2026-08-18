@@ -1,3 +1,212 @@
+-- /\\_____/\\
+-- /  o   o  \\
+--( ==  ^  == )
+-- )         (
+--(           )
+--( (  )   (  ) )
+--(__(__)___(__)__) 
+-- MEOWDLC BOOT LOADER
+-- Created by meow2tie
+--=========================================================
+-- BOOT / LOADING SCREEN
+--=========================================================
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local DISCORD_URL = "https://discord.gg/zV2DSVpcs"
+
+-- Clipboard copy: supported executors expose one of these APIs.
+pcall(function()
+    if setclipboard then
+        setclipboard(DISCORD_URL)
+    elseif toclipboard then
+        toclipboard(DISCORD_URL)
+    elseif syn and syn.write_clipboard then
+        syn.write_clipboard(DISCORD_URL)
+    end
+end)
+
+local function tween(object, time, properties)
+    local t = TweenService:Create(
+        object,
+        TweenInfo.new(time, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+        properties
+    )
+    t:Play()
+    return t
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "meowdlc_BootScreen"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 999999
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = PlayerGui
+
+local bg = Instance.new("Frame")
+bg.Name = "BlackScreen"
+bg.Size = UDim2.fromScale(1, 1)
+bg.BackgroundColor3 = Color3.new(0, 0, 0)
+bg.BackgroundTransparency = 1
+bg.BorderSizePixel = 0
+bg.Parent = gui
+
+local container = Instance.new("Frame")
+container.AnchorPoint = Vector2.new(0.5, 0.5)
+container.Position = UDim2.fromScale(0.5, 0.5)
+container.Size = UDim2.fromOffset(500, 230)
+container.BackgroundTransparency = 1
+container.Parent = bg
+
+local title = Instance.new("TextLabel")
+title.Name = "LoadingTitle"
+title.AnchorPoint = Vector2.new(0.5, 0)
+title.Position = UDim2.fromScale(0.5, 0)
+title.Size = UDim2.fromScale(1, 0.25)
+title.BackgroundTransparency = 1
+title.Text = "MEOWDLC"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 32
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextTransparency = 1
+title.Parent = container
+
+local scriptLabel = Instance.new("TextLabel")
+scriptLabel.Name = "LoadingScript"
+scriptLabel.AnchorPoint = Vector2.new(0.5, 0)
+scriptLabel.Position = UDim2.fromScale(0.5, 0.27)
+scriptLabel.Size = UDim2.fromScale(1, 0.12)
+scriptLabel.BackgroundTransparency = 1
+scriptLabel.Text = "LoadingScript..."
+scriptLabel.Font = Enum.Font.Code
+scriptLabel.TextSize = 14
+scriptLabel.TextColor3 = Color3.fromRGB(190, 190, 190)
+scriptLabel.TextTransparency = 1
+scriptLabel.Parent = container
+
+local status = Instance.new("TextLabel")
+status.Name = "Check_LocalScript"
+status.AnchorPoint = Vector2.new(0.5, 0)
+status.Position = UDim2.fromScale(0.5, 0.44)
+status.Size = UDim2.fromScale(1, 0.12)
+status.BackgroundTransparency = 1
+status.Text = "Check_LocalScript..."
+status.Font = Enum.Font.Code
+status.TextSize = 13
+status.TextColor3 = Color3.fromRGB(125, 125, 125)
+status.TextTransparency = 1
+status.Parent = container
+
+local barBg = Instance.new("Frame")
+barBg.Name = "ProgressBackground"
+barBg.AnchorPoint = Vector2.new(0.5, 0)
+barBg.Position = UDim2.fromScale(0.5, 0.64)
+barBg.Size = UDim2.fromScale(0.72, 0.025)
+barBg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+barBg.BackgroundTransparency = 1
+barBg.BorderSizePixel = 0
+barBg.Parent = container
+
+local barBgCorner = Instance.new("UICorner")
+barBgCorner.CornerRadius = UDim.new(1, 0)
+barBgCorner.Parent = barBg
+
+local bar = Instance.new("Frame")
+bar.Name = "Progress"
+bar.Size = UDim2.fromScale(0, 1)
+bar.BackgroundColor3 = Color3.fromRGB(255, 75, 105)
+bar.BackgroundTransparency = 1
+bar.BorderSizePixel = 0
+bar.Parent = barBg
+
+local barCorner = Instance.new("UICorner")
+barCorner.CornerRadius = UDim.new(1, 0)
+barCorner.Parent = bar
+
+local percent = Instance.new("TextLabel")
+percent.Name = "Percentage"
+percent.AnchorPoint = Vector2.new(0.5, 0)
+percent.Position = UDim2.fromScale(0.5, 0.72)
+percent.Size = UDim2.fromScale(1, 0.10)
+percent.BackgroundTransparency = 1
+percent.Text = "0%"
+percent.Font = Enum.Font.Code
+percent.TextSize = 12
+percent.TextColor3 = Color3.fromRGB(95, 95, 95)
+percent.TextTransparency = 1
+percent.Parent = container
+
+local version = Instance.new("TextLabel")
+version.Name = "BuildInfo"
+version.AnchorPoint = Vector2.new(0.5, 1)
+version.Position = UDim2.fromScale(0.5, 1)
+version.Size = UDim2.fromScale(1, 0.10)
+version.BackgroundTransparency = 1
+version.Text = "meowdlc // secure initialization"
+version.Font = Enum.Font.Code
+version.TextSize = 10
+version.TextColor3 = Color3.fromRGB(65, 65, 65)
+version.TextTransparency = 1
+version.Parent = container
+
+-- Fast fade-in.
+tween(bg, 0.28, {BackgroundTransparency = 0})
+task.wait(0.10)
+tween(title, 0.30, {TextTransparency = 0})
+task.wait(0.10)
+tween(scriptLabel, 0.25, {TextTransparency = 0})
+task.wait(0.08)
+tween(status, 0.25, {TextTransparency = 0})
+tween(barBg, 0.25, {BackgroundTransparency = 0})
+tween(bar, 0.25, {BackgroundTransparency = 0})
+tween(percent, 0.25, {TextTransparency = 0})
+tween(version, 0.25, {TextTransparency = 0})
+
+local steps = {
+    {"Check_LocalScript...", 8},
+    {"Resolving_Dependencies...", 17},
+    {"Checking_Runtime...", 27},
+    {"Initializing_WindUI...", 38},
+    {"Loading_Modules...", 49},
+    {"Applying_Configuration...", 61},
+    {"Building_Interface...", 72},
+    {"Registering_Connections...", 83},
+    {"Finalizing_Components...", 94},
+    {"MEOWDLC_READY ✓", 100},
+}
+
+for _, step in ipairs(steps) do
+    status.Text = step[1]
+    percent.Text = tostring(step[2]) .. "%"
+    tween(bar, 0.38, {Size = UDim2.fromScale(step[2] / 100, 1)})
+    task.wait(0.58)
+end
+
+task.wait(0.45)
+
+-- Smooth fade-out.
+local fade = 0.75
+tween(bg, fade, {BackgroundTransparency = 1})
+tween(title, fade, {TextTransparency = 1})
+tween(scriptLabel, fade, {TextTransparency = 1})
+tween(status, fade, {TextTransparency = 1})
+tween(barBg, fade, {BackgroundTransparency = 1})
+tween(bar, fade, {BackgroundTransparency = 1})
+tween(percent, fade, {TextTransparency = 1})
+tween(version, fade, {TextTransparency = 1})
+task.wait(fade + 0.05)
+gui:Destroy()
+
+--=========================================================
+
+--=========================================================
+-- CURRENT MEOWDLC FROM GITHUB
+--=========================================================
+
 -- /\_____/\ 
 -- /  o   o  \
 --( ==  ^  == )
