@@ -18,15 +18,6 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local CachedRegion = "--"
 
-task.spawn(function()
-    pcall(function()
-        local region = LocalizationService:GetCountryRegionForPlayerAsync(LocalPlayer)
-        if type(region) == "string" and region ~= "" then
-            CachedRegion = region
-        end
-    end)
-end)
-
 local DISCORD_URL = "https://discord.gg/zV2DSVpcs"
 
 -- Clipboard copy: supported executors expose one of these APIs.
@@ -190,11 +181,28 @@ local steps = {
     {"MEOWDLC_READY ✓", 100},
 }
 
+local playerCountAtStart = #Players:GetPlayers()
+local targetLoadTime
+
+if playerCountAtStart <= 4 then
+    targetLoadTime = 7
+elseif playerCountAtStart <= 9 then
+    targetLoadTime = 11
+elseif playerCountAtStart <= 20 then
+    targetLoadTime = 15
+else
+    targetLoadTime = 20
+end
+
+-- Account for the fixed fade-in, final pause and fade-out.
+local fixedLoadTime = 1.53
+local stepWait = math.max(0.15, (targetLoadTime - fixedLoadTime) / #steps)
+
 for _, step in ipairs(steps) do
     status.Text = step[1]
     percent.Text = tostring(step[2]) .. "%"
     tween(bar, 0.38, {Size = UDim2.fromScale(step[2] / 100, 1)})
-    task.wait(0.58)
+    task.wait(stepWait)
 end
 
 task.wait(0.45)
@@ -259,10 +267,28 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local Camera = Workspace.CurrentCamera
 
+local function RefreshRegion()
+    for _ = 1, 5 do
+        local ok, region = pcall(function()
+            return LocalizationService:GetCountryRegionForPlayerAsync(LocalPlayer)
+        end)
+
+        if ok and type(region) == "string" and region ~= "" then
+            CachedRegion = string.upper(region)
+            return CachedRegion
+        end
+
+        task.wait(1)
+    end
+
+    return CachedRegion
+end
+
 --=========================================================
 -- WINDUI
 --=========================================================
 
+-- Game-owned Backpack/Hotbar errors are external to meowdlc and are not modified here.
 local WindUI = loadstring(game:HttpGet(
     "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"
 ))()
@@ -526,6 +552,11 @@ local PerformanceTab = Window:Tab({
 local MiscTab = Window:Tab({
     Title = "Misc",
     Icon = "settings"
+})
+
+local ConfigTab = Window:Tab({
+    Title = "Configs",
+    Icon = "folder"
 })
 
 local UITab = Window:Tab({
@@ -2639,6 +2670,11 @@ local function UpdateSelfESP()
     local gui = SelfESPData.Gui
     local stroke = SelfESPData.Stroke
 
+    if Settings.SelfBox and (not box or not gui or not stroke or not box.Parent or not gui.Parent or not stroke.Parent) then
+        CreateSelfESP()
+        return
+    end
+
     if box and gui and stroke and box.Parent and gui.Parent and stroke.Parent then
         local x, y, w, h = GetSelfScreenBox(character)
 
@@ -3192,7 +3228,13 @@ local function GetFPS()
 end
 
 local function GetRegion()
-    return CachedRegion or "--"
+    local region = tostring(CachedRegion or "--")
+
+    if region == "" or region == "REGION" then
+        return "--"
+    end
+
+    return region
 end
 
 local function UpdateInfoIsland()
@@ -3245,6 +3287,11 @@ local function UpdateInfoIsland()
         or "MEOWDLC"
 end
 
+task.spawn(function()
+    RefreshRegion()
+    pcall(UpdateInfoIsland)
+end)
+
 local function UpdateInfoTheme()
 
     local accent =
@@ -3267,11 +3314,26 @@ end
 -- COMBAT UI
 --=========================================================
 
+local ToggleControls = {}
+
+local function MakeToggle(tab, options)
+    local control = tab:Toggle(options)
+
+    if control then
+        table.insert(ToggleControls, {
+            Control = control,
+            Default = options.Default == true
+        })
+    end
+
+    return control
+end
+
 CombatTab:Section({
     Title = "AIM ASSIST"
 })
 
-CombatTab:Toggle({
+MakeToggle(CombatTab, {
     Title = "Aim Assist",
     Desc = "Enable aiming",
     Default = false,
@@ -3288,7 +3350,7 @@ CombatTab:Toggle({
     end
 })
 
-CombatTab:Toggle({
+MakeToggle(CombatTab, {
     Title = "Aim Lock",
     Desc = "Keep selected target",
     Default = false,
@@ -3405,7 +3467,7 @@ CombatTab:Slider({
     end
 })
 
-CombatTab:Toggle({
+MakeToggle(CombatTab, {
     Title = "Wall Check",
     Default = false,
 
@@ -3418,7 +3480,7 @@ CombatTab:Section({
     Title = "FOV VISUALIZATION"
 })
 
-CombatTab:Toggle({
+MakeToggle(CombatTab, {
     Title = "Show FOV",
     Default = false,
 
@@ -3471,7 +3533,7 @@ CombatTab:Slider({
     end
 })
 
-CombatTab:Toggle({
+MakeToggle(CombatTab, {
     Title = "Filled",
     Default = false,
 
@@ -3492,7 +3554,7 @@ VisualTab:Section({
     Title = "PLAYER ESP"
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Player ESP",
     Default = false,
 
@@ -3503,7 +3565,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Names",
     Default = false,
 
@@ -3514,7 +3576,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Distance",
     Default = false,
 
@@ -3525,7 +3587,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "HP Bar",
     Default = false,
 
@@ -3553,7 +3615,7 @@ VisualTab:Dropdown({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "2D Box",
     Default = false,
 
@@ -3564,7 +3626,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Corners",
     Default = false,
 
@@ -3575,7 +3637,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Chams",
     Default = false,
 
@@ -3586,7 +3648,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "2D Tracers",
     Default = false,
 
@@ -3597,7 +3659,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Footsteps",
     Default = false,
 
@@ -3610,7 +3672,7 @@ VisualTab:Section({
     Title = "SELF ESP"
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Self ESP",
     Default = false,
 
@@ -3625,7 +3687,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Self Box",
     Default = false,
 
@@ -3638,7 +3700,7 @@ VisualTab:Toggle({
     end
 })
 
-VisualTab:Toggle({
+MakeToggle(VisualTab, {
     Title = "Self Chams",
     Default = false,
 
@@ -3659,7 +3721,7 @@ NPCTab:Section({
     Title = "NPC ESP / AIM"
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "NPC Aim",
     Default = false,
 
@@ -3677,7 +3739,7 @@ NPCTab:Toggle({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "NPC ESP",
     Default = false,
 
@@ -3690,7 +3752,7 @@ NPCTab:Toggle({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "Name",
     Default = false,
 
@@ -3701,7 +3763,7 @@ NPCTab:Toggle({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "Distance",
     Default = false,
 
@@ -3712,7 +3774,7 @@ NPCTab:Toggle({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "NPC HP Bar",
     Default = false,
 
@@ -3740,7 +3802,7 @@ NPCTab:Dropdown({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "Box",
     Default = false,
 
@@ -3751,7 +3813,7 @@ NPCTab:Toggle({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "Corners",
     Default = false,
 
@@ -3762,7 +3824,7 @@ NPCTab:Toggle({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "Chams",
     Default = false,
 
@@ -3773,7 +3835,7 @@ NPCTab:Toggle({
     end
 })
 
-NPCTab:Toggle({
+MakeToggle(NPCTab, {
     Title = "Tracer",
     Default = false,
 
@@ -3802,7 +3864,7 @@ ButtonTab:Section({
     Title = "FLOATING BUTTON"
 })
 
-ButtonTab:Toggle({
+MakeToggle(ButtonTab, {
     Title = "Floating Button",
     Default = false,
 
@@ -3938,7 +4000,7 @@ PerformanceTab:Paragraph({
     Desc = "Most frequent ESP updates and highest visual responsiveness."
 })
 
-PerformanceTab:Toggle({
+MakeToggle(PerformanceTab, {
     Title = "Potato Graphics",
     Default = false,
 
@@ -3956,6 +4018,374 @@ PerformanceTab:Toggle({
 })
 
 --=========================================================
+-- CONFIGS
+--=========================================================
+
+local ConfigManager = Window.ConfigManager
+local ConfigName = "default"
+local ConfigInput
+local ConfigDropdown
+
+local function EncodeConfigValue(value)
+    local valueType = typeof(value)
+
+    if valueType == "Color3" then
+        return {
+            __type = "Color3",
+            R = value.R,
+            G = value.G,
+            B = value.B
+        }
+    end
+
+    if valueType == "EnumItem" then
+        return {
+            __type = "EnumItem",
+            EnumType = tostring(value.EnumType),
+            Name = value.Name
+        }
+    end
+
+    if type(value) == "table" then
+        local result = {}
+
+        for key, item in pairs(value) do
+            local encoded = EncodeConfigValue(item)
+
+            if encoded ~= nil then
+                result[key] = encoded
+            end
+        end
+
+        return result
+    end
+
+    if type(value) == "string"
+        or type(value) == "number"
+        or type(value) == "boolean"
+        or value == nil then
+        return value
+    end
+
+    return nil
+end
+
+local function DecodeConfigValue(value)
+    if type(value) ~= "table" then
+        return value
+    end
+
+    if value.__type == "Color3" then
+        return Color3.new(
+            tonumber(value.R) or 1,
+            tonumber(value.G) or 1,
+            tonumber(value.B) or 1
+        )
+    end
+
+    if value.__type == "EnumItem" then
+        if value.EnumType == "Enum.KeyCode"
+            and Enum.KeyCode[value.Name] then
+            return Enum.KeyCode[value.Name]
+        end
+
+        return nil
+    end
+
+    local result = {}
+
+    for key, item in pairs(value) do
+        result[key] = DecodeConfigValue(item)
+    end
+
+    return result
+end
+
+local function SanitizeConfigName(name)
+    name = tostring(name or "default")
+    name = name:gsub("[<>:\"/\\|%?%*]", "_")
+    name = name:gsub("%s+", "_")
+    name = name:gsub("_+", "_")
+
+    if name == "" then
+        name = "default"
+    end
+
+    return name:sub(1, 32)
+end
+
+local function NotifyConfig(title, content, icon)
+    WindUI:Notify({
+        Title = title,
+        Content = content,
+        Icon = icon,
+        Duration = 3
+    })
+end
+
+local function RefreshConfigDropdown()
+    if not ConfigDropdown or not ConfigManager then
+        return
+    end
+
+    local configs = ConfigManager:AllConfigs()
+
+    if #configs == 0 then
+        configs = { "default" }
+    end
+
+    pcall(function()
+        ConfigDropdown:Refresh(configs)
+    end)
+end
+
+local function ApplyLoadedConfig(data)
+    if type(data) ~= "table" then
+        return false
+    end
+
+    local loaded = data.Settings
+
+    if type(loaded) ~= "table" then
+        return false
+    end
+
+    loaded = DecodeConfigValue(loaded)
+
+    for key, value in pairs(loaded) do
+        if Settings[key] ~= nil and value ~= nil then
+            Settings[key] = value
+        end
+    end
+
+    ApplyPerformance()
+
+    if Settings.PotatoGraphics then
+        ApplyPotatoGraphics()
+    else
+        RestoreGraphics()
+    end
+
+    UpdateFOV()
+    UpdateButton()
+    UpdateInfoTheme()
+    UpdateInfoIsland()
+    RefreshPlayerESP()
+    UpdatePlayerESP()
+    UpdateNPCESP()
+    UpdateSelfESP()
+
+    pcall(function()
+        if Settings.Theme then
+            WindUI:SetTheme(Settings.Theme)
+        end
+    end)
+
+    return true
+end
+
+local function SaveCurrentConfig(name)
+    if not ConfigManager then
+        return false, "ConfigManager unavailable"
+    end
+
+    name = SanitizeConfigName(name)
+    ConfigName = name
+
+    local config = ConfigManager:CreateConfig(name)
+
+    if not config then
+        return false, "Could not create config"
+    end
+
+    config:Set("Settings", EncodeConfigValue(Settings))
+    config:Set("Version", 1)
+    config:Set("SavedAt", os.date("%Y-%m-%d %H:%M:%S"))
+
+    local success = config:Save()
+
+    RefreshConfigDropdown()
+
+    return success, success and nil or "Failed to save config"
+end
+
+local function LoadNamedConfig(name)
+    if not ConfigManager then
+        return false, "ConfigManager unavailable"
+    end
+
+    name = SanitizeConfigName(name)
+    ConfigName = name
+
+    local config = ConfigManager:CreateConfig(name)
+
+    if not config then
+        return false, "Could not create config"
+    end
+
+    local data = config:Load()
+
+    if not data then
+        return false, "Config not found"
+    end
+
+    if not ApplyLoadedConfig(data) then
+        return false, "Invalid config data"
+    end
+
+    return true, data.SavedAt
+end
+
+ConfigTab:Section({
+    Title = "CONFIGURATION"
+})
+
+ConfigTab:Paragraph({
+    Title = "Local Configs",
+    Desc = "Save and load meowdlc settings locally through WindUI's ConfigManager."
+})
+
+if ConfigManager then
+    pcall(function()
+        ConfigManager:Init(Window)
+    end)
+
+    ConfigInput = ConfigTab:Input({
+        Title = "Config Name",
+        Value = ConfigName,
+
+        Callback = function(value)
+            ConfigName = SanitizeConfigName(value)
+        end
+    })
+
+    local initialConfigs = ConfigManager:AllConfigs()
+
+    if #initialConfigs == 0 then
+        initialConfigs = { "default" }
+    end
+
+    ConfigDropdown = ConfigTab:Dropdown({
+        Title = "Select Config",
+        Values = initialConfigs,
+        Value = ConfigName,
+        SearchBarEnabled = true,
+        AllowNone = false,
+
+        Callback = function(value)
+            ConfigName = SanitizeConfigName(value)
+
+            pcall(function()
+                ConfigInput:Set(ConfigName)
+            end)
+        end
+    })
+
+    ConfigTab:Button({
+        Title = "Save Config",
+        Icon = "save",
+
+        Callback = function()
+            local success, reason =
+                SaveCurrentConfig(ConfigName)
+
+            if success then
+                NotifyConfig(
+                    "Config Saved",
+                    "Saved: " .. ConfigName,
+                    "check"
+                )
+            else
+                NotifyConfig(
+                    "Config Error",
+                    tostring(reason),
+                    "x"
+                )
+            end
+        end
+    })
+
+    ConfigTab:Button({
+        Title = "Load Config",
+        Icon = "folder-open",
+
+        Callback = function()
+            local success, info =
+                LoadNamedConfig(ConfigName)
+
+            if success then
+                NotifyConfig(
+                    "Config Loaded",
+                    "Loaded: " .. ConfigName
+                        .. (info and "\nSaved: " .. tostring(info) or ""),
+                    "refresh-cw"
+                )
+            else
+                NotifyConfig(
+                    "Config Error",
+                    tostring(info),
+                    "x"
+                )
+            end
+        end
+    })
+
+    ConfigTab:Button({
+        Title = "Delete Config",
+        Icon = "trash-2",
+
+        Callback = function()
+            local name = SanitizeConfigName(ConfigName)
+
+            local success = pcall(function()
+                ConfigManager:DeleteConfig(name)
+            end)
+
+            if success then
+                RefreshConfigDropdown()
+
+                NotifyConfig(
+                    "Config Deleted",
+                    "Deleted: " .. name,
+                    "trash-2"
+                )
+            else
+                NotifyConfig(
+                    "Config Error",
+                    "Failed to delete config",
+                    "x"
+                )
+            end
+        end
+    })
+
+    ConfigTab:Button({
+        Title = "Refresh Configs",
+        Icon = "refresh-cw",
+
+        Callback = function()
+            RefreshConfigDropdown()
+
+            NotifyConfig(
+                "Configs",
+                "Config list refreshed",
+                "refresh-cw"
+            )
+        end
+    })
+
+    ConfigTab:Paragraph({
+        Title = "Storage",
+        Desc = "Configs are stored locally. They are not uploaded to GitHub."
+    })
+else
+    ConfigTab:Paragraph({
+        Title = "Config Manager Unavailable",
+        Desc = "The current WindUI build does not provide ConfigManager."
+    })
+end
+
+--=========================================================
 -- MISC
 --=========================================================
 
@@ -3963,7 +4393,7 @@ MiscTab:Section({
     Title = "INFO BAR"
 })
 
-MiscTab:Toggle({
+MakeToggle(MiscTab, {
     Title = "Info Bar",
     Default = false,
 
@@ -3977,7 +4407,7 @@ MiscTab:Toggle({
     end
 })
 
-MiscTab:Toggle({
+MakeToggle(MiscTab, {
     Title = "FPS",
     Default = true,
 
@@ -3988,7 +4418,7 @@ MiscTab:Toggle({
     end
 })
 
-MiscTab:Toggle({
+MakeToggle(MiscTab, {
     Title = "Ping",
     Default = true,
 
@@ -3999,7 +4429,7 @@ MiscTab:Toggle({
     end
 })
 
-MiscTab:Toggle({
+MakeToggle(MiscTab, {
     Title = "Server Region",
     Default = true,
 
@@ -4085,9 +4515,21 @@ MiscTab:Button({
 
         Settings.ButtonEnabled = false
         Settings.InfoBar = false
+        Settings.InfoFPS = true
+        Settings.InfoPing = true
+        Settings.InfoRegion = true
+        Settings.ShowFOV = false
+        Settings.FOVFilled = false
+        Settings.PotatoGraphics = false
 
         LockedTarget = nil
         LockedNPC = nil
+
+        for _, entry in ipairs(ToggleControls) do
+            pcall(function()
+                entry.Control:Set(entry.Default)
+            end)
+        end
 
         DestroySelfESP()
 
@@ -4104,6 +4546,8 @@ MiscTab:Button({
         })
     end
 })
+
+local DestroyWindUI
 
 MiscTab:Button({
     Title = "Unload",
@@ -4195,8 +4639,6 @@ DestroyWindUI = function()
         end)
     end)
 end
-
-local DestroyWindUI
 
 --=========================================================
 -- UI
@@ -4591,6 +5033,10 @@ Connect(
             infoAccumulator = 0
 
             UpdateInfoIsland()
+
+            if CachedRegion == "--" then
+                task.spawn(RefreshRegion)
+            end
         end
 
         -- BUTTON
