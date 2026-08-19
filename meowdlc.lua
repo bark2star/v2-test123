@@ -5,11 +5,6 @@
 --(           )
 --( (  )   (  ) )
 --(__(__)___(__)__) 
--- MEOWDLC BOOT LOADER
--- Created by meow2tie
---=========================================================
--- BOOT / LOADING SCREEN
---=========================================================
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -18,7 +13,6 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local DISCORD_URL = "https://discord.gg/zV2DSVpcs"
 
--- Clipboard copy: supported executors expose one of these APIs.
 pcall(function()
     if setclipboard then
         setclipboard(DISCORD_URL)
@@ -153,7 +147,6 @@ version.TextColor3 = Color3.fromRGB(65, 65, 65)
 version.TextTransparency = 1
 version.Parent = container
 
--- Fast fade-in.
 tween(bg, 0.28, {BackgroundTransparency = 0})
 task.wait(0.10)
 tween(title, 0.30, {TextTransparency = 0})
@@ -188,7 +181,6 @@ end
 
 task.wait(0.45)
 
--- Smooth fade-out.
 local fade = 0.75
 tween(bg, fade, {BackgroundTransparency = 1})
 tween(title, fade, {TextTransparency = 1})
@@ -200,38 +192,6 @@ tween(percent, fade, {TextTransparency = 1})
 tween(version, fade, {TextTransparency = 1})
 task.wait(fade + 0.05)
 gui:Destroy()
-
---=========================================================
-
---=========================================================
--- CURRENT MEOWDLC FROM GITHUB
---=========================================================
-
--- /\_____/\ 
--- /  o   o  \
---( ==  ^  == )
--- )         (
---(           )
---( (  )   (  ) )
---(__(__)___(__)__)
--- MEOWDLC
--- Created by meow2tie
---
--- Optimized / rebuilt ESP + UI
--- WindUI 1.6.x
--- Floating button OFF by default
--- Player target selector removed
--- Dynamic theme/accent support
--- iPhone-style Info Island
--- Smooth 2D ESP tracers
--- Player + NPC ESP
--- HP bars: Bottom / Side
--- Self ESP
--- Performance presets
-
---=========================================================
--- SERVICES
---=========================================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -246,19 +206,11 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local Camera = Workspace.CurrentCamera
 
---=========================================================
--- WINDUI
---=========================================================
-
 local WindUI = loadstring(game:HttpGet(
     "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"
 ))()
 
 assert(WindUI, "[meowdlc] WindUI failed to load")
-
---=========================================================
--- COLORS
---=========================================================
 
 local COLORS = {
     Background = Color3.fromRGB(238, 238, 240),
@@ -276,13 +228,8 @@ local COLORS = {
 
 local DEFAULT_ACCENT = COLORS.Accent
 
---=========================================================
--- SETTINGS
---=========================================================
-
 local Settings = {
 
-    -- AIM
     AimEnabled = false,
     AimLock = false,
     TargetType = "Players",
@@ -296,14 +243,12 @@ local Settings = {
 
     Wallcheck = false,
 
-    -- FOV
     ShowFOV = false,
     FOVThickness = 1.5,
     FOVTransparency = 0.15,
     FOVFilled = false,
     FOVFillTransparency = 0.92,
 
-    -- PLAYER ESP
     ESP = false,
     Names = false,
     Distance = false,
@@ -317,12 +262,10 @@ local Settings = {
     Tracers = false,
     Footsteps = false,
 
-    -- SELF ESP
     SelfESP = false,
     SelfBox = false,
     SelfChams = false,
 
-    -- NPC ESP
     NPCESP = false,
     NPCName = false,
     NPCDistance = false,
@@ -335,40 +278,31 @@ local Settings = {
     NPCChams = false,
     NPCTracer = false,
 
-    -- BUTTON
     ButtonEnabled = false,
     ButtonX = -80,
     ButtonY = -100,
     ButtonSize = 58,
     ButtonTransparency = 0.08,
 
-    -- INFO BAR
     InfoBar = false,
     InfoFPS = true,
     InfoPing = true,
     InfoRegion = true,
 
-    -- PERFORMANCE
     Performance = "Balanced",
 
     AimInterval = 0.016,
     ESPInterval = 0.08,
-    NPCInterval = 0.25,
+    NPCInterval = 0.016,
     ScanInterval = 0.5,
     FootstepInterval = 0.12,
 
-    -- POTATO
     PotatoGraphics = false,
 
-    -- UI
     MenuKey = Enum.KeyCode.RightShift,
     AccentColor = DEFAULT_ACCENT,
     Theme = "SoftWhite"
 }
-
---=========================================================
--- PERFORMANCE
---=========================================================
 
 local function ApplyPerformance()
 
@@ -376,30 +310,26 @@ local function ApplyPerformance()
 
         Settings.AimInterval = 0.033
         Settings.ESPInterval = 0.20
-        Settings.NPCInterval = 0.75
+        Settings.NPCInterval = 0.033
         Settings.ScanInterval = 1
 
     elseif Settings.Performance == "Balanced" then
 
         Settings.AimInterval = 0.016
         Settings.ESPInterval = 0.08
-        Settings.NPCInterval = 0.25
+        Settings.NPCInterval = 0.016
         Settings.ScanInterval = 0.5
 
     else
 
         Settings.AimInterval = 0.008
         Settings.ESPInterval = 0.033
-        Settings.NPCInterval = 0.10
+        Settings.NPCInterval = 0.008
         Settings.ScanInterval = 0.25
     end
 end
 
 ApplyPerformance()
-
---=========================================================
--- STORAGE
---=========================================================
 
 local PlayerESP = {}
 local NPCESP = {}
@@ -424,10 +354,6 @@ local function Connect(signal, callback)
 
     return connection
 end
-
---=========================================================
--- THEME
---=========================================================
 
 WindUI:AddTheme({
     Name = "SoftWhite",
@@ -455,10 +381,6 @@ WindUI:AddTheme({
     TabActive = Color3.fromRGB(210, 210, 214)
 })
 
---=========================================================
--- WINDOW
---=========================================================
-
 local Window = WindUI:CreateWindow({
     Title = "meowdlc",
     Icon = "crosshair",
@@ -480,10 +402,6 @@ local Window = WindUI:CreateWindow({
         Enabled = false
     }
 })
-
---=========================================================
--- TABS
---=========================================================
 
 local CombatTab = Window:Tab({
     Title = "Combat",
@@ -519,10 +437,6 @@ local UITab = Window:Tab({
     Title = "UI",
     Icon = "palette"
 })
-
---=========================================================
--- HELPERS
---=========================================================
 
 local function GetRoot(character)
 
@@ -577,10 +491,6 @@ local function IsEnemy(player)
     return true
 end
 
---=========================================================
--- AIM PART
---=========================================================
-
 local function GetCharacterAimPart(character)
 
     if not character then
@@ -632,10 +542,6 @@ local function GetNPCAimPart(model)
     end
 end
 
---=========================================================
--- WALL CHECK
---=========================================================
-
 local RayParams = RaycastParams.new()
 
 RayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -682,10 +588,6 @@ local function CanSee(part)
         part.Parent
     )
 end
-
---=========================================================
--- PLAYER AIM
---=========================================================
 
 local function GetClosestPlayerTarget()
 
@@ -754,10 +656,6 @@ local function GetClosestPlayerTarget()
 
     return closest
 end
-
---=========================================================
--- NPC SYSTEM
---=========================================================
 
 local function IsPlayerCharacter(model)
 
@@ -881,10 +779,6 @@ Connect(
     end
 )
 
---=========================================================
--- NPC AIM
---=========================================================
-
 local function GetClosestNPCTarget()
 
     Camera = Workspace.CurrentCamera
@@ -979,10 +873,6 @@ local function GetClosestNPCTarget()
 
     return nil
 end
-
---=========================================================
--- AIM
---=========================================================
 
 local function AimAt(part)
 
@@ -1137,10 +1027,6 @@ local function UpdateAim()
     end
 end
 
---=========================================================
--- FOV
---=========================================================
-
 local FOVGui = Instance.new("ScreenGui")
 FOVGui.Name = "meowdlc_FOV"
 FOVGui.IgnoreGuiInset = true
@@ -1209,20 +1095,12 @@ local function UpdateFOV()
     FOV.Visible = Settings.ShowFOV
 end
 
---=========================================================
--- ESP GUI
---=========================================================
-
 local ESPGui = Instance.new("ScreenGui")
 ESPGui.Name = "meowdlc_ESP"
 ESPGui.IgnoreGuiInset = true
 ESPGui.ResetOnSpawn = false
 ESPGui.DisplayOrder = 20
 ESPGui.Parent = PlayerGui
-
---=========================================================
--- SCREEN BOX
---=========================================================
 
 local function GetScreenBox(character)
 
@@ -1287,10 +1165,6 @@ local function GetScreenBox(character)
         maxY - minY
 end
 
---=========================================================
--- LINE
---=========================================================
-
 local function NewLine(parent)
 
     local line = Instance.new("Frame")
@@ -1303,10 +1177,6 @@ local function NewLine(parent)
 
     return line
 end
-
---=========================================================
--- CORNERS
---=========================================================
 
 local function UpdateCorners(c, x, y, w, h)
 
@@ -1403,10 +1273,6 @@ local function UpdateCorners(c, x, y, w, h)
         )
 end
 
---=========================================================
--- TRACER
---=========================================================
-
 local function SetTracer(frame, startPos, endPos)
 
     local difference = endPos - startPos
@@ -1431,10 +1297,6 @@ local function SetTracer(frame, startPos, endPos)
             )
         )
 end
-
---=========================================================
--- HEALTH BAR
---=========================================================
 
 local function CreateHealthBar(parent)
 
@@ -1630,10 +1492,6 @@ local function UpdateHealthBar(
     bar.Holder.Visible = true
 end
 
---=========================================================
--- PLAYER ESP DESTROY
---=========================================================
-
 local function DestroyPlayerESP(player)
 
     local data = PlayerESP[player]
@@ -1652,10 +1510,6 @@ local function DestroyPlayerESP(player)
 
     PlayerESP[player] = nil
 end
-
---=========================================================
--- PLAYER ESP CREATE
---=========================================================
 
 local function CreatePlayerESP(player)
 
@@ -1685,8 +1539,6 @@ local function CreatePlayerESP(player)
         Gui = gui
     }
 
-    -- BOX
-
     local box = Instance.new("Frame")
 
     box.BackgroundTransparency = 1
@@ -1706,16 +1558,12 @@ local function CreatePlayerESP(player)
     data.Box = box
     data.BoxStroke = boxStroke
 
-    -- CORNERS
-
     data.Corners = {}
 
     for i = 1, 8 do
         data.Corners[i] =
             NewLine(gui)
     end
-
-    -- NAME
 
     local name =
         Instance.new("TextLabel")
@@ -1748,8 +1596,6 @@ local function CreatePlayerESP(player)
 
     data.Name = name
 
-    -- DISTANCE
-
     local distance =
         Instance.new("TextLabel")
 
@@ -1774,8 +1620,6 @@ local function CreatePlayerESP(player)
 
     data.Distance = distance
 
-    -- TRACER
-
     local tracer =
         Instance.new("Frame")
 
@@ -1794,12 +1638,8 @@ local function CreatePlayerESP(player)
 
     data.Tracer = tracer
 
-    -- HEALTH
-
     data.HealthBar =
         CreateHealthBar(gui)
-
-    -- CHAMS
 
     local highlight =
         Instance.new("Highlight")
@@ -1835,10 +1675,6 @@ local function CreatePlayerESP(player)
 
     PlayerESP[player] = data
 end
-
---=========================================================
--- PLAYER ESP UPDATE
---=========================================================
 
 local function UpdatePlayerESP()
 
@@ -1876,8 +1712,6 @@ local function UpdatePlayerESP()
 
         data.Gui.Visible = true
 
-        -- BOX
-
         data.Box.Visible =
             Settings.Box
 
@@ -1895,8 +1729,6 @@ local function UpdatePlayerESP()
 
         data.BoxStroke.Color =
             Settings.AccentColor
-
-        -- CORNERS
 
         for _, line in ipairs(data.Corners) do
 
@@ -1918,8 +1750,6 @@ local function UpdatePlayerESP()
             )
         end
 
-        -- NAME
-
         data.Name.Visible =
             Settings.Names
 
@@ -1934,8 +1764,6 @@ local function UpdatePlayerESP()
                 w,
                 14
             )
-
-        -- HEALTH
 
         if Settings.Health then
 
@@ -1960,8 +1788,6 @@ local function UpdatePlayerESP()
 
             data.HealthBar.Holder.Visible = false
         end
-
-        -- DISTANCE
 
         data.Distance.Visible =
             Settings.Distance
@@ -2006,8 +1832,6 @@ local function UpdatePlayerESP()
             end
         end
 
-        -- TRACER
-
         data.Tracer.Visible =
             Settings.Tracers
 
@@ -2038,8 +1862,6 @@ local function UpdatePlayerESP()
             )
         end
 
-        -- CHAMS
-
         data.Highlight.Enabled =
             Settings.Chams
 
@@ -2054,10 +1876,6 @@ local function UpdatePlayerESP()
     end
 end
 
---=========================================================
--- PLAYER ESP REFRESH
---=========================================================
-
 local function RefreshPlayerESP()
 
     for player in pairs(PlayerESP) do
@@ -2071,10 +1889,6 @@ local function RefreshPlayerESP()
         end
     end
 end
-
---=========================================================
--- NPC ESP DESTROY
---=========================================================
 
 local function DestroyNPCESP(npc)
 
@@ -2095,497 +1909,194 @@ local function DestroyNPCESP(npc)
     NPCESP[npc] = nil
 end
 
---=========================================================
--- NPC ESP CREATE
---=========================================================
-
 local function CreateNPCESP(npc)
-
-    if NPCESP[npc]
-        or not IsValidNPC(npc) then
-
+    if NPCESP[npc] or not IsValidNPC(npc) then
         return
     end
 
-    local gui =
-        Instance.new("Frame")
-
-    gui.Name =
-        "NPCESP_" .. npc.Name
-
+    local gui = Instance.new("Frame")
+    gui.Name = "NPCESP_" .. npc.Name
     gui.BackgroundTransparency = 1
     gui.BorderSizePixel = 0
     gui.Size = UDim2.fromScale(1, 1)
     gui.Parent = ESPGui
 
-    local data = {
-        Gui = gui
-    }
+    local data = {Gui = gui}
 
-    -- BOX
-
-    local box =
-        Instance.new("Frame")
-
+    local box = Instance.new("Frame")
     box.BackgroundTransparency = 1
     box.BorderSizePixel = 0
     box.Parent = gui
 
-    local stroke =
-        Instance.new("UIStroke")
-
+    local stroke = Instance.new("UIStroke")
     stroke.Thickness = 1.25
-    stroke.Color =
-        Settings.AccentColor
-
+    stroke.Color = Settings.AccentColor
     stroke.Parent = box
 
     data.Box = box
     data.BoxStroke = stroke
-
-    -- CORNERS
-
     data.Corners = {}
 
     for i = 1, 8 do
-        data.Corners[i] =
-            NewLine(gui)
+        data.Corners[i] = NewLine(gui)
     end
 
-    -- NAME
-
-    local name =
-        Instance.new("TextLabel")
-
+    local name = Instance.new("TextLabel")
     name.BackgroundTransparency = 1
-
-    name.Font =
-        Enum.Font.GothamBold
-
+    name.Font = Enum.Font.GothamBold
     name.TextSize = 10
-
-    name.TextColor3 =
-        COLORS.White
-
-    name.TextStrokeTransparency =
-        0.35
-
+    name.TextColor3 = COLORS.White
+    name.TextStrokeTransparency = 0.35
     name.Parent = gui
-
     data.Name = name
 
-    -- DISTANCE
-
-    local distance =
-        Instance.new("TextLabel")
-
+    local distance = Instance.new("TextLabel")
     distance.BackgroundTransparency = 1
-
-    distance.Font =
-        Enum.Font.GothamMedium
-
+    distance.Font = Enum.Font.GothamMedium
     distance.TextSize = 9
-
-    distance.TextColor3 =
-        Color3.fromRGB(
-            205,
-            205,
-            210
-        )
-
-    distance.TextStrokeTransparency =
-        0.4
-
+    distance.TextColor3 = Color3.fromRGB(205, 205, 210)
+    distance.TextStrokeTransparency = 0.4
     distance.Parent = gui
-
     data.Distance = distance
 
-    -- TRACER
-
-    local tracer =
-        Instance.new("Frame")
-
-    tracer.AnchorPoint =
-        Vector2.new(
-            0.5,
-            0.5
-        )
-
+    local tracer = Instance.new("Frame")
+    tracer.AnchorPoint = Vector2.new(0.5, 0.5)
     tracer.BorderSizePixel = 0
-
-    tracer.BackgroundColor3 =
-        Settings.AccentColor
-
+    tracer.BackgroundColor3 = Settings.AccentColor
     tracer.Parent = gui
-
     data.Tracer = tracer
 
-    -- HEALTH
+    data.HealthBar = CreateHealthBar(gui)
 
-    data.HealthBar =
-        CreateHealthBar(gui)
-
-    -- CHAMS
-
-    local highlight =
-        Instance.new("Highlight")
-
-    highlight.Name =
-        "meowdlc_NPCChams"
-
-    highlight.Adornee =
-        npc
-
-    highlight.DepthMode =
-        Enum.HighlightDepthMode.AlwaysOnTop
-
-    highlight.FillColor =
-        Settings.AccentColor
-
-    highlight.OutlineColor =
-        COLORS.White
-
-    highlight.FillTransparency =
-        0.78
-
-    highlight.OutlineTransparency =
-        0.08
-
-    highlight.Enabled =
-        Settings.NPCChams
-
-    highlight.Parent =
-        ESPGui
-
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "meowdlc_NPCChams"
+    highlight.Adornee = npc
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.FillColor = Settings.AccentColor
+    highlight.OutlineColor = COLORS.White
+    highlight.FillTransparency = 0.78
+    highlight.OutlineTransparency = 0.08
+    highlight.Enabled = Settings.NPCChams
+    highlight.Parent = ESPGui
     data.Highlight = highlight
+
+    data.Humanoid = GetHumanoid(npc)
+    data.Root = GetRoot(npc)
+    data.LastBox = nil
+    data.LastDistance = 0
 
     NPCESP[npc] = data
 end
 
---=========================================================
--- NPC ESP UPDATE
---=========================================================
-
 local function UpdateNPCESP()
-
     if not Settings.NPCESP then
-
         for npc in pairs(NPCESP) do
             DestroyNPCESP(npc)
         end
-
         return
     end
 
     Camera = Workspace.CurrentCamera
-
     if not Camera then
         return
     end
 
     for _, npc in ipairs(NPCs) do
-
-        if npc
-            and npc.Parent
-            and IsValidNPC(npc) then
-
+        if npc and npc.Parent and not NPCESP[npc] then
             CreateNPCESP(npc)
         end
     end
 
     for npc, data in pairs(NPCESP) do
-
-        if not npc
-            or not npc.Parent
-            or not IsValidNPC(npc) then
-
+        if not npc or not npc.Parent then
             DestroyNPCESP(npc)
             continue
         end
 
-        local x, y, w, h =
-            GetScreenBox(npc)
+        local humanoid = data.Humanoid
+        if not humanoid or not humanoid.Parent then
+            humanoid = GetHumanoid(npc)
+            data.Humanoid = humanoid
+        end
 
+        local root = data.Root
+        if not root or not root.Parent then
+            root = GetRoot(npc)
+            data.Root = root
+        end
+
+        if not humanoid or humanoid.Health <= 0 or not root then
+            data.Gui.Visible = false
+            continue
+        end
+
+        local x, y, w, h = GetScreenBox(npc)
         if not x then
-
             data.Gui.Visible = false
             continue
         end
 
         data.Gui.Visible = true
 
-        -- BOX
-
-        data.Box.Visible =
-            Settings.NPCBox
-
-        data.Box.Position =
-            UDim2.fromOffset(
-                x,
-                y
-            )
-
-        data.Box.Size =
-            UDim2.fromOffset(
-                w,
-                h
-            )
-
-        data.BoxStroke.Color =
-            Settings.AccentColor
-
-        -- CORNERS
+        data.Box.Visible = Settings.NPCBox
+        data.Box.Position = UDim2.fromOffset(x, y)
+        data.Box.Size = UDim2.fromOffset(w, h)
+        data.BoxStroke.Color = Settings.AccentColor
 
         for _, line in ipairs(data.Corners) do
-
-            line.Visible =
-                Settings.NPCCorners
-
-            line.BackgroundColor3 =
-                Settings.AccentColor
+            line.Visible = Settings.NPCCorners
+            line.BackgroundColor3 = Settings.AccentColor
         end
 
         if Settings.NPCCorners then
-
-            UpdateCorners(
-                data.Corners,
-                x,
-                y,
-                w,
-                h
-            )
+            UpdateCorners(data.Corners, x, y, w, h)
         end
 
-        -- NAME
+        data.Name.Visible = Settings.NPCName
+        if Settings.NPCName then
+            data.Name.Text = npc.Name
+            data.Name.Position = UDim2.fromOffset(x, y - 17)
+            data.Name.Size = UDim2.fromOffset(w, 14)
+        end
 
-        data.Name.Visible =
-            Settings.NPCName
-
-        data.Name.Text =
-            npc.Name
-
-        data.Name.Position =
-            UDim2.fromOffset(
-                x,
-                y - 17
-            )
-
-        data.Name.Size =
-            UDim2.fromOffset(
-                w,
-                14
-            )
-
-        -- HEALTH
-
-        local humanoid =
-            GetHumanoid(npc)
-
-        if Settings.NPCHealth
-            and humanoid then
-
+        if Settings.NPCHealth then
             UpdateHealthBar(
                 data.HealthBar,
                 humanoid.Health,
                 humanoid.MaxHealth,
-                x,
-                y,
-                w,
-                h,
+                x, y, w, h,
                 Settings.NPCHealthStyle
             )
-
         else
-
-            data.HealthBar.Holder.Visible =
-                false
+            data.HealthBar.Holder.Visible = false
         end
 
-        -- DISTANCE
-
-        data.Distance.Visible =
-            Settings.NPCDistance
-
+        data.Distance.Visible = Settings.NPCDistance
         if Settings.NPCDistance then
-
-            local root =
-                GetRoot(npc)
-
-            if root then
-
-                local distance =
-                    (
-                        Camera.CFrame.Position
-                        - root.Position
-                    ).Magnitude
-
-                data.Distance.Text =
-                    math.floor(distance)
-                    .. " studs"
-
-                data.Distance.Position =
-                    UDim2.fromOffset(
-                        x,
-                        y + h + (
-                            Settings.NPCHealth
-                            and Settings.NPCHealthStyle == "Bottom"
-                            and 10
-                            or 3
-                        )
-                    )
-
-                data.Distance.Size =
-                    UDim2.fromOffset(
-                        w,
-                        12
-                    )
-            end
+            local distance = (Camera.CFrame.Position - root.Position).Magnitude
+            data.Distance.Text = math.floor(distance) .. " studs"
+            local offset = y + h + (
+                Settings.NPCHealth and Settings.NPCHealthStyle == "Bottom" and 10 or 3
+            )
+            data.Distance.Position = UDim2.fromOffset(x, offset)
+            data.Distance.Size = UDim2.fromOffset(w, 12)
         end
 
-        -- TRACER
-
-        data.Tracer.Visible =
-            Settings.NPCTracer
-
-        data.Tracer.BackgroundColor3 =
-            Settings.AccentColor
-
+        data.Tracer.Visible = Settings.NPCTracer
+        data.Tracer.BackgroundColor3 = Settings.AccentColor
         if Settings.NPCTracer then
-
-            local viewport =
-                Camera.ViewportSize
-
-            local start =
-                Vector2.new(
-                    viewport.X / 2,
-                    viewport.Y
-                )
-
-            local finish =
-                Vector2.new(
-                    x + w / 2,
-                    y + h
-                )
-
+            local viewport = Camera.ViewportSize
             SetTracer(
                 data.Tracer,
-                start,
-                finish
+                Vector2.new(viewport.X / 2, viewport.Y),
+                Vector2.new(x + w / 2, y + h)
             )
         end
 
-        -- CHAMS
-
-        data.Highlight.Enabled =
-            Settings.NPCChams
-
-        data.Highlight.FillColor =
-            Settings.AccentColor
-
-        data.Highlight.OutlineColor =
-            COLORS.White
-    end
-end
-
---=========================================================
--- SELF ESP
---=========================================================
-
-local SelfESPData = {}
-
-local function DestroySelfESP()
-
-    if SelfESPData.Gui then
-        SelfESPData.Gui:Destroy()
-    end
-
-    if SelfESPData.Highlight then
-        SelfESPData.Highlight:Destroy()
-    end
-
-    SelfESPData = {}
-end
-
-local function CreateSelfESP()
-
-    DestroySelfESP()
-
-    if not Settings.SelfESP then
-        return
-    end
-
-    local character =
-        LocalPlayer.Character
-
-    if not character then
-        return
-    end
-
-    local highlight =
-        Instance.new("Highlight")
-
-    highlight.Name =
-        "meowdlc_SelfChams"
-
-    highlight.Adornee =
-        character
-
-    highlight.DepthMode =
-        Enum.HighlightDepthMode.Occluded
-
-    highlight.FillColor =
-        Settings.AccentColor
-
-    highlight.OutlineColor =
-        COLORS.White
-
-    highlight.FillTransparency =
-        0.88
-
-    highlight.OutlineTransparency =
-        0.05
-
-    highlight.Enabled =
-        Settings.SelfChams
-
-    highlight.Parent =
-        ESPGui
-
-    SelfESPData.Highlight =
-        highlight
-
-    if Settings.SelfBox then
-
-        local gui =
-            Instance.new("Frame")
-
-        gui.BackgroundTransparency = 1
-        gui.Size =
-            UDim2.fromScale(1, 1)
-
-        gui.Parent =
-            ESPGui
-
-        SelfESPData.Gui = gui
-
-        local box =
-            Instance.new("Frame")
-
-        box.BackgroundTransparency = 1
-        box.BorderSizePixel = 0
-        box.Parent = gui
-
-        local stroke =
-            Instance.new("UIStroke")
-
-        stroke.Thickness = 1.25
-        stroke.Color =
-            Settings.AccentColor
-
-        stroke.Parent = box
-
-        SelfESPData.Box = box
-        SelfESPData.Stroke = stroke
+        data.Highlight.Enabled = Settings.NPCChams
+        data.Highlight.Adornee = npc
+        data.Highlight.FillColor = Settings.AccentColor
+        data.Highlight.OutlineColor = COLORS.White
     end
 end
 
@@ -2648,10 +2159,6 @@ local function UpdateSelfESP()
         end
     end
 end
-
---=========================================================
--- FOOTSTEPS
---=========================================================
 
 local function CreateFootstep(player)
 
@@ -2745,10 +2252,6 @@ local function CreateFootstep(player)
         end
     )
 end
-
---=========================================================
--- POTATO
---=========================================================
 
 local PotatoState = {
     Saved = false,
@@ -2876,10 +2379,6 @@ local function RestoreGraphics()
     PotatoState.Effects = {}
     PotatoState.Saved = false
 end
-
---=========================================================
--- FLOATING BUTTON
---=========================================================
 
 local ButtonGui =
     Instance.new("ScreenGui")
@@ -3018,7 +2517,6 @@ local function UpdateButton()
         AimButton.Text =
             "AIM"
 
-        -- OFF also follows current accent/theme
         AimButton.BackgroundColor3 =
             Settings.AccentColor:Lerp(
                 COLORS.PanelDark,
@@ -3049,10 +2547,6 @@ Connect(
         UpdateButton()
     end
 )
-
---=========================================================
--- INFO ISLAND
---=========================================================
 
 local InfoGui =
     Instance.new("ScreenGui")
@@ -3258,10 +2752,6 @@ local function UpdateInfoTheme()
     InfoText.TextColor3 =
         COLORS.Text
 end
-
---=========================================================
--- COMBAT UI
---=========================================================
 
 CombatTab:Section({
     Title = "AIM ASSIST"
@@ -3480,10 +2970,6 @@ CombatTab:Toggle({
     end
 })
 
---=========================================================
--- PLAYER VISUALS
---=========================================================
-
 VisualTab:Section({
     Title = "PLAYER ESP"
 })
@@ -3639,10 +3125,6 @@ VisualTab:Toggle({
     end
 })
 
---=========================================================
--- NPC UI
---=========================================================
-
 NPCTab:Section({
     Title = "NPC ESP / AIM"
 })
@@ -3782,10 +3264,6 @@ NPCTab:Button({
     end
 })
 
---=========================================================
--- BUTTON UI
---=========================================================
-
 ButtonTab:Section({
     Title = "FLOATING BUTTON"
 })
@@ -3883,10 +3361,6 @@ ButtonTab:Slider({
     end
 })
 
---=========================================================
--- PERFORMANCE
---=========================================================
-
 PerformanceTab:Section({
     Title = "PERFORMANCE PRESETS"
 })
@@ -3942,10 +3416,6 @@ PerformanceTab:Toggle({
         end
     end
 })
-
---=========================================================
--- MISC
---=========================================================
 
 MiscTab:Section({
     Title = "INFO BAR"
@@ -4155,10 +3625,6 @@ MiscTab:Button({
     end
 })
 
---=========================================================
--- UI
---=========================================================
-
 UITab:Section({
     Title = "MENU"
 })
@@ -4334,10 +3800,6 @@ UITab:Button({
     end
 })
 
---=========================================================
--- PLAYER EVENTS
---=========================================================
-
 Connect(
     Players.PlayerAdded,
     function(player)
@@ -4444,10 +3906,6 @@ Connect(
     end
 )
 
---=========================================================
--- MAIN LOOP
---=========================================================
-
 local aimAccumulator = 0
 local espAccumulator = 0
 local npcAccumulator = 0
@@ -4471,11 +3929,7 @@ Connect(
             return
         end
 
-        -- FOV
-
         UpdateFOV()
-
-        -- AIM
 
         aimAccumulator += dt
 
@@ -4486,8 +3940,6 @@ Connect(
 
             UpdateAim()
         end
-
-        -- PLAYER ESP
 
         espAccumulator += dt
 
@@ -4511,8 +3963,6 @@ Connect(
             UpdateSelfESP()
         end
 
-        -- NPC SCAN
-
         scanAccumulator += dt
 
         if scanAccumulator >=
@@ -4523,19 +3973,7 @@ Connect(
             ScanNPCs()
         end
 
-        -- NPC ESP
-
-        npcAccumulator += dt
-
-        if npcAccumulator >=
-            Settings.NPCInterval then
-
-            npcAccumulator = 0
-
-            UpdateNPCESP()
-        end
-
-        -- INFO
+        UpdateNPCESP()
 
         infoAccumulator += dt
 
@@ -4546,15 +3984,9 @@ Connect(
             UpdateInfoIsland()
         end
 
-        -- BUTTON
-
         UpdateButton()
     end
 )
-
---=========================================================
--- FOOTSTEP LOOP
---=========================================================
 
 local footstepAccumulator = 0
 
@@ -4617,10 +4049,6 @@ Connect(
         end
     end
 )
-
---=========================================================
--- INITIALIZE
---=========================================================
 
 UpdateFOV()
 UpdateButton()
